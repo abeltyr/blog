@@ -1,21 +1,26 @@
-    // this is the entry point for the app env variables are set automatically
-    // import the express app
-    const express = require('express')
+// this is the entry point for the app env variables are set automatically
+// node modules
+const bodyParser = require('body-parser')
+const express = require('express')
+
+// middleware
+const security = require('./middlewares/security')
+
+
     //initialize the express app
-    const app = express()
+const app = express()
 //  don't console.log, instead use the debug module
+const debug = require('debug')('app')
+debug('starting server ...')
 
-    //const debug = require('debug') ('')
+    // parse the body of the incoming body req
+app.use(bodyParser.json())
+    // apply security middleware
+security(app)
 
-    // debug('starting server ...')
 
 
-
-    // add global middleware here
-
-    app.get('/',(req,res)=>{
-        res.send("this is the app")
-    })
+    // plug the routers here for the individual components
 
 
 
@@ -23,6 +28,6 @@
 
 // Start listening for connections
     app.listen(process.env.APP_PORT? process.env.APP_PORT : 3000, (err)=>{
-        if (err) console.log("can't start the app")
-        console.log(`starting ${process.env.APP_NAME} on port ${process.env.APP_PORT}`)
+        if (err) debug("can't start the app")
+        debug(`starting ${process.env.APP_NAME} on port ${process.env.APP_PORT}`)
     })
