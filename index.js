@@ -19,9 +19,9 @@ security(app)
     // parse the body of the incoming body req
 app.use(bodyParser.json())
 
+const blog = require('./route/blog')
 
-
-
+app.use('/blog',blog)
 
     // plug the routers here for the individual components
 
