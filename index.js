@@ -13,16 +13,21 @@ const app = express()
 const debug = require('debug')('app')
 debug('starting server ...')
 
+// apply security middleware
+security(app)
+
     // parse the body of the incoming body req
 app.use(bodyParser.json())
-    // apply security middleware
-security(app)
+
+
 
 
 
     // plug the routers here for the individual components
 
-
+app.get('/', (req,res)=>{
+    res.send()
+})
 
 
 
