@@ -23,7 +23,14 @@
     "express": "^4.16.3",
     "helmet": "^3.13.0",
     "mysql2": "^1.6.1",
+<<<<<<< HEAD
     "passport": "^0.4.0",
     "sequelize": "^4.38.0"
+=======
+    "nodemon": "^1.18.4",
+    "passport": "^0.4.0",
+    "sequelize": "^4.38.0",
+    "sequelize-cli": "^4.1.1"
+>>>>>>> e0d4e37c4dc3bcc1886b2efa662953d6ae903b8e
   }
 }
