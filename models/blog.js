@@ -1,6 +1,4 @@
 'use strict';
-const withPagination = require('sequelize-simple-pagination');
-
 module.exports = (sequelize, DataTypes) => {
   const blog = sequelize.define('blog', {
     id: {
@@ -44,11 +42,3 @@ module.exports = (sequelize, DataTypes) => {
   };
   return blog;
 };
-
-const options = {
-  methodName: 'paginate', // the name of the pagination method
-  primaryKey: 'id', // the primary key field of the model
-};
-
-// Add a pagination method for the model
-withPagination(4)(15);

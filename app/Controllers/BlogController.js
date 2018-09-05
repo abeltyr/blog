@@ -9,7 +9,7 @@ const db = require('../../models');
 exports.list_all = function (req, res) {
     db.blog.findAndCountAll()
         .then((data) => {
-            res.json(["data", data, ]);
+            res.json(["data", data]);
         })
         .catch(function (error) {
             res.status(500).send('Internal Server Error');
@@ -41,9 +41,9 @@ exports.list_Category = function (req, res) {
         .findAndCountAll({
             where: {
                 category: req.params.category
-            }
-        }).then(result => {
-            res.json(["data", result]);
+            },
+        }, ).then(data => {
+            res.json(["data", data]);
         })
         .catch(function (error) {
             res.status(500).send('Internal Server Error');
@@ -60,8 +60,8 @@ exports.list_Title = function (req, res) {
                 title: req.params.title
             }
         })
-        .then(result => {
-            res.json(["data", result]);
+        .then(data => {
+            res.json(["data", data]);
         })
         .catch(function (error) {
             res.status(500).send('Internal Server Error');
@@ -77,8 +77,8 @@ exports.blog_User = function (req, res) {
             where: {
                 user_id: req.params.user
             }
-        }).then(result => {
-            res.json(["data", result]);
+        }).then(data => {
+            res.json(["data", data]);
         })
         .catch(function (error) {
             res.status(500).send('Internal Server Error');
@@ -91,19 +91,43 @@ exports.blog_User = function (req, res) {
  */
 
 exports.New_blog = function (req, res) {
-    db.blog
-        .create({
-            user_id: req.body.user_id,
-            title: req.body.title,
-            category: req.body.category,
+    var CRepeat = 0;
+    var TRepeat = 0;
+    db.blog.count({
+        where: {
             content: req.body.content
+        }
+    }).then(data => {
+        CRepeat = data;
+        db.blog.count({
+            where: {
+                title: req.body.title,
+            }
+        }).then(data => {
+            TRepeat = data;
+            /**
+             * the if prevent from duplicating a blog that already exist
+             */
+            if ((CRepeat == 0) || (TRepeat == 0)) {
+                db.blog
+                    .create({
+                        user_id: req.body.user_id,
+                        title: req.body.title,
+                        category: req.body.category,
+                        content: req.body.content
+                    })
+                    .then(data => {
+                        res.json(data);
+                    })
+                    .catch(error => {
+                        res.json(error.errors);
+                    });
+            } else {
+                res.status(422).json(["Duplicate entry"]);
+            }
         })
-        .then(result => {
-            res.json(result);
-        })
-        .catch(error => {
-            res.json(error.errors);
-        });
+    })
+
 };
 
 /**Update a blog by finding thr blog by idif it went well the created blog 
@@ -112,22 +136,54 @@ exports.New_blog = function (req, res) {
  */
 
 exports.Update_blog = function (req, res) {
-    db.blog
-        .update({
-            title: req.body.title,
-            category: req.body.category,
-            content: req.body.content
-        }, {
+    let CTitle = "";
+    let CCategory = "";
+    let CContent = "";
+
+
+    /** TODO add the a way to make update available only for the user who
+     *  blogged the article     * 
+     */
+    db.blog.findOne({
             where: {
                 id: req.params.id
             }
         })
-        .then(result => {
-            res.json(result);
+        .then((data) => {
+            CTitle = data.title;
+            CCategory = data.category;
+            CContent = data.content;
+
+            /**
+             * here we check if the there data being sent has changed or not
+             */
+
+            if ((CTitle == req.body.title) && (CCategory == req.body.category) && (CContent == req.body.content)) {
+                res.status(400).json(["there seems to be no change to your blog titled " + req.body.title]);
+            } else {
+                db.blog
+                    .update({
+                        title: req.body.title,
+                        category: req.body.category,
+                        content: req.body.content
+                    }, {
+                        where: {
+                            id: req.params.id
+                        }
+                    })
+                    .then(data => {
+                        res.json(data);
+                    })
+                    .catch(error => {
+                        res.json(error);
+                    });
+            }
+
         })
-        .catch(error => {
-            res.json(error);
+        .catch((error) => {
+            res.status(404).json(['this blog not found']);
         });
+
 };
 
 /**Delete a blog by finding thr blog by idif it went well the created blog 
@@ -136,14 +192,17 @@ exports.Update_blog = function (req, res) {
  */
 
 exports.Delete_blog = function (req, res) {
+    /** TODO add the a way to make update available only for the user who
+     *  blogged the article     * 
+     */
     db.blog
         .destroy({
             where: {
                 id: req.params.id
             }
         })
-        .then(result => {
-            res.json(result);
+        .then(data => {
+            res.json(data);
         })
         .catch(error => {
             res.json(error);
