@@ -3,11 +3,6 @@ const db = require('../models')
 const app = express.Router()
 const BLOG = require('../app/Controllers/BlogController')
 
-// app.get("/all", (req, res) => {
-//     db.blog.findAll({}).then(result => {
-//         res.json(["data", result]);
-//     });
-// });
 
 app.route('/all')
     .get(BLOG.list_all)
@@ -25,6 +20,9 @@ app.route('/Update/:id')
     .put(BLOG.Update_blog)
 app.route('/Delete/:id')
     .delete(BLOG.Delete_blog)
-
+app.route('/Favorite')
+    .post(BLOG.Add_favorite)
+app.route('/get/Favorite/:id')
+    .get(BLOG.get_favorite)
 
 module.exports = app;

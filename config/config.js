@@ -8,7 +8,8 @@ module.exports = {
 >>>>>>> 1d39c8823fb4795a4f6136485f8b9d8eea885f0f
     "database": "blog",
     "host": "127.0.0.1",
-    "dialect": "mysql"
+    "dialect": "mysql",
+    "operatorsAliases": false
   },
   "test": {
     "username": "root",

@@ -1,6 +1,6 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const blog = sequelize.define('blog', {
+  const favorites = sequelize.define('favorites', {
     id: {
       allowNull: false,
       autoIncrement: false,
@@ -15,6 +15,13 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: true
       }
     },
+    blog_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
+    },
     title: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -22,23 +29,9 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: true
       }
     },
-    category: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: true
-      }
-    },
-    content: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-      validate: {
-        notEmpty: true
-      }
-    },
   }, {});
-  blog.associate = function (models) {
+  favorites.associate = function (models) {
     // associations can be defined here
   };
-  return blog;
+  return favorites;
 };
