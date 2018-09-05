@@ -3,11 +3,6 @@ const db = require('../models')
 const app = express.Router()
 const BLOG = require('../app/Controllers/BlogController')
 
-// app.get("/all", (req, res) => {
-//     db.blog.findAll({}).then(result => {
-//         res.json(["data", result]);
-//     });
-// });
 
 app.route('/all')
     .get(BLOG.list_all)
