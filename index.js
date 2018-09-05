@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const express = require('express')
 const blog = require('./routes/blog')
 const feedback = require('./routes/feedback')
+const user = require('./routes/user')
 
 // middleware
 const security = require('./middlewares/security')
@@ -25,6 +26,8 @@ app.use(bodyParser.json())
 app.use('/api/blog', blog)
 app.use('/api/feedback', feedback)
 
+
+app.use('/user', user)
 
 // Start listening for connections
 app.listen(process.env.APP_PORT ? process.env.APP_PORT : 3000, (err) => {
