@@ -1,7 +1,7 @@
 const express = require('express')
 const db = require('../models')
 const app = express.Router()
-const BLOG = require('../Controllers/BlogController')
+const BLOG = require('../app/Controllers/BlogController')
 
 // app.get("/all", (req, res) => {
 //     db.blog.findAll({}).then(result => {
@@ -15,6 +15,8 @@ app.route('/all/Category/:category')
     .get(BLOG.list_Category)
 app.route('/all/Title/:title')
     .get(BLOG.list_Title)
+app.route('/:id')
+    .get(BLOG.blog_detail)
 app.route('/User/:user')
     .get(BLOG.blog_User)
 app.route('/New')

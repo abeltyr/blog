@@ -1,14 +1,12 @@
 /* this get the index from model and later is used
  *  to find the blog model   
  */
-const db = require('../models');
+const db = require('../../models');
 
 
 // this is the controller to list all
 
 exports.list_all = function (req, res) {
-    var limit = 0; // number of records per page
-    var offset = 1;
     db.blog.findAndCountAll()
         .then((data) => {
             res.json(["data", data, ]);
@@ -17,6 +15,23 @@ exports.list_all = function (req, res) {
             res.status(500).send('Internal Server Error');
         });
 };
+
+exports.blog_detail = function (req, res) {
+    db.blog.findOne({
+            where: {
+                id: req.params.id
+            }
+        })
+        .then((data) => {
+            res.json(["data", data]);
+        })
+        .catch(function (error) {
+            res.status(500).send('Internal Server Error');
+        });
+};
+
+
+
 
 /* this is the controller to list all blog
  on a specific  categoric and the amount of those blogs
@@ -47,6 +62,9 @@ exports.list_Title = function (req, res) {
         })
         .then(result => {
             res.json(["data", result]);
+        })
+        .catch(function (error) {
+            res.status(500).send('Internal Server Error');
         });
 };
 
@@ -56,12 +74,15 @@ exports.list_Title = function (req, res) {
 
 exports.blog_User = function (req, res) {
     db.blog.findAndCountAll({
-        where: {
-            user_id: req.params.user
-        }
-    }).then(result => {
-        res.json(["data", result]);
-    });
+            where: {
+                user_id: req.params.user
+            }
+        }).then(result => {
+            res.json(["data", result]);
+        })
+        .catch(function (error) {
+            res.status(500).send('Internal Server Error');
+        });
 };
 
 /**create a new blog if it went well the created blog 
