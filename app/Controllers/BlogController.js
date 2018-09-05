@@ -34,7 +34,7 @@ exports.blog_detail = function (req, res) {
 
 
 /* this is the controller to list all blog
- on a specific  categoric and the amount of those blogs
+ on a specific  category and the amount of those blogs
 */
 exports.list_Category = function (req, res) {
     db.blog
