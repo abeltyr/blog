@@ -3,28 +3,30 @@ const db = require('../models')
 const app = express.Router()
 const BLOG = require('../app/Controllers/BlogController')
 
+// import authorization middleware
+const token = require('../middlewares/verifyToken')
 // app.get("/all", (req, res) => {
 //     db.blog.findAll({}).then(result => {
 //         res.json(["data", result]);
 //     });
 // });
 
-app.route('/all')
-    .get(BLOG.list_all)
-app.route('/all/Category/:category')
-    .get(BLOG.list_Category)
-app.route('/all/Title/:title')
-    .get(BLOG.list_Title)
-app.route('/:id')
-    .get(BLOG.blog_detail)
-app.route('/User/:user')
-    .get(BLOG.blog_User)
-app.route('/New')
-    .post(BLOG.New_blog)
-app.route('/Update/:id')
-    .put(BLOG.Update_blog)
-app.route('/Delete/:id')
-    .delete(BLOG.Delete_blog)
+app
+    .get('/all',BLOG.list_all)
+
+    .get('/all/Category/:category',BLOG.list_Category)
+
+    .get('/all/Title/:title',BLOG.list_Title)
+
+    .get('/:id',BLOG.blog_detail)
+
+    .get('/User/:user',BLOG.blog_User)
+
+    .post('/New',BLOG.New_blog)
+
+    .put('/Update/:id',BLOG.Update_blog)
+
+    .delete('/Delete/:id',BLOG.Delete_blog)
 
 
 module.exports = app;
