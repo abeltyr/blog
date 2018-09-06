@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const express = require('express')
 const blog = require('./routes/blog')
 const feedback = require('./routes/feedback')
+const follow = require('./routes/follow')
 
 // middleware
 const security = require('./middlewares/security')
@@ -28,6 +29,7 @@ app.use(bodyParser.json())
 // plug the routers here for the individual components
 app.use('/api/blog', blog)
 app.use('/api/feedback', feedback)
+app.use('/api/', follow)
 
 
 // Start listening for connections

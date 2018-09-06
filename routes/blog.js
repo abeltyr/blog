@@ -20,9 +20,19 @@ app.route('/Update/:id')
     .put(BLOG.Update_blog)
 app.route('/Delete/:id')
     .delete(BLOG.Delete_blog)
+
 app.route('/Favorite')
     .post(BLOG.Add_favorite)
 app.route('/get/Favorite/:id')
     .get(BLOG.get_favorite)
+app.route('/Delete/Favorite/:id')
+    .delete(BLOG.Delete_favorite)
+
+app.route('/readLater')
+    .post(BLOG.Add_bookmark)
+app.route('/get/readLater/:id')
+    .get(BLOG.get_bookmark)
+app.route('/Delete/readLater/:id')
+    .delete(BLOG.Delete_bookmark)
 
 module.exports = app;

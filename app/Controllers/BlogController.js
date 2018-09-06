@@ -217,42 +217,19 @@ exports.Add_favorite = function (req, res) {
      *  blogged the article     * 
      */
     db.favorites
-
-    var URepeat = 0;
-    var BRepeat = 0;
-    db.favorites.count({
-        where: {
-            user_id: req.body.user_id,
-        }
-    }).then(data => {
-        URepeat = data;
-        db.favorites.count({
+        .findOrCreate({
             where: {
+                user_id: req.body.user_id,
                 blog_id: req.body.blog_id,
-            }
-        }).then(data => {
-            BRepeat = data;
-            /**
-             * the if prevent from duplicating a blog that already exist
-             */
-            if ((URepeat == 0) || (BRepeat == 0)) {
-                db.favorites
-                    .create({
-                        user_id: req.body.user_id,
-                        blog_id: req.body.blog_id,
-                        title: req.body.title
-                    })
-                    .then(data => {
-                        res.json(data);
-                    })
-                    .catch(error => {
-                        res.json(error.errors);
-                    });
-            } else {
-                res.status(422).json(["Duplicate entry"]);
+                title: req.body.title
             }
         })
-    })
+        .then(data => {
+            res.json(data);
+        })
+        .catch(error => {
+            res.json(error.errors);
+        });
 };
 
 exports.get_favorite = function (req, res) {
@@ -266,5 +243,73 @@ exports.get_favorite = function (req, res) {
         })
         .catch(function (error) {
             res.status(500).send('Internal Server Error');
+        });
+};
+
+exports.Delete_favorite = function (req, res) {
+    /** TODO add the a way to make update available only for the user who
+     *  blogged the article     * 
+     */
+    db.favorites
+        .destroy({
+            where: {
+                id: req.params.id
+            }
+        })
+        .then(data => {
+            res.json(data);
+        })
+        .catch(error => {
+            res.json(error);
+        });
+};
+
+exports.Add_bookmark = function (req, res) {
+    db.readlater
+        .findOrCreate({
+            where: {
+                user_id: req.body.user_id,
+                blog_id: req.body.blog_id,
+                title: req.body.title
+            }
+        })
+        .then(data => {
+            res.json(data);
+        })
+        .catch(error => {
+            res.json(error.errors);
+        });
+
+};
+
+exports.get_bookmark = function (req, res) {
+    db.readlater.findAndCountAll({
+            where: {
+                user_id: req.params.id,
+            }
+        })
+        .then((data) => {
+            res.json(["data", data]);
+        })
+        .catch(function (error) {
+            res.status(500).send('Internal Server Error');
+        });
+};
+
+exports.Delete_bookmark = function (req, res) {
+    /** TODO add the a way to make update available only for the user who
+     *  blogged the article     * 
+     */
+    db.readlater
+        .destroy({
+            where: {
+                id: req.params.id
+            }
+        })
+        .then(data => {
+            res.json(data);
+        })
+        .catch(error => {
+            res.json(error);
         });
 };
