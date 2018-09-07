@@ -2,25 +2,38 @@
 module.exports = (sequelize, DataTypes) => {
   const user = sequelize.define('user', {
       id: {
-          type: DataTypes.UUID,
           allowNull: false,
+          autoIncrement: false,
           primaryKey: true,
-          validate: {
-              notEmpty: true
-          }
+          type: DataTypes.UUID,
+          defaultValue: DataTypes.UUIDV4,
       },
-      email: {
-        type: DataTypes.STRING,
-        validate:{
-            notEmpty: false
-        }
-    },
-      name: {
+      google_id: {
+          type: DataTypes.STRING,
+          allowNull: true
+      },
+      facebook_id: {
+          type: DataTypes.STRING,
+          allowNull: true
+      },
+      full_name: {
           type: DataTypes.STRING,
           validate:{
               notEmpty: true
           }
-      }
+      },
+      image: {
+          type: DataTypes.STRING,
+          validate:{
+              notEmpty: true
+          }
+      },
+      link: {
+          type: DataTypes.STRING,
+          validate:{
+              notEmpty: true
+          }
+      },
 
   }, {});
   user.associate = function(models) {

@@ -4,6 +4,7 @@ const app = express.Router()
 // require passport and the facebook strategy
 const passport = require('passport')
 const passport_fb = require('passport-facebook')
+const passport_go = require('passport-google-oauth').OAuth2Strategy
 //const passport_google = require('')
 // require jsonwebtoken
 const jwt = require('jsonwebtoken');
@@ -12,17 +13,31 @@ const db = require('../models');
 
 // facebook strategy
 passport.use(new passport_fb({
-        clientID:"1176901365785017",
-        clientSecret:"b9ac2e3b3fc09a0c96b828859ce4d668",
+        clientID:process.env.FACEBOOK_APP_ID,
+        clientSecret:process.env.FACEBOOK_APP_SECRET,
         callbackURL: "http://localhost:3000/user/facebook/callback",
+        profileFields: ['email','first_name','last_name','picture.type(small)','displayName','link','friends'],
+
     },
     (accessToken, refreshToken, profile, cb)=>{
         cb(null,profile)
     }))
 // google strategy
+passport.use(new passport_go({
+    clientID:process.env.GOOGLE_APP_ID,
+    clientSecret:process.env.GOOGLE_APP_SECRET,
+    callbackURL: "http://localhost:3000/user/google/callback",
+},
+   function (accessToken, refreshToken, profile, done) {
+       return done(null,profile)
+   }
+    ))
+
+// login link for google /user/google/login
+app.get('/google/login', passport.authenticate('google', {scope:['profile','email','link','photos']}))
 
 // login link /user/facebook/login
-app.get('/facebook/login',passport.authenticate('facebook',{session: false}))
+app.get('/facebook/login',passport.authenticate('facebook',{session: false},{ scope: ["email"]}))
 
 // facebook callback
 app.get('/facebook/callback',
@@ -30,16 +45,58 @@ app.get('/facebook/callback',
         passport.authenticate('facebook',{session:false},(err,user,info)=>{
             if(err) return next(err)
             if(!user) return res.redirect('/user/login')
-            //db.user.findOrCreate({where:{fb_id:user.id}})
-            let body = {
-                id: user.id,
-                name: user.displayName,
-                email: user.email
-            }
-            return res.json({"access_token":jwt.sign(body,process.env.SECRET),"type": "Bearer"})
+            db.user.findOrCreate({
+                where:{
+                    facebook_id: user.id,
+                    full_name: user.displayName,
+                    image: "null",
+                    link: "null"
+                }
+            }).then(doc=>{
+                db.user.findOne({where: {id: doc.id}},{
+                    image: user.photos[0].value
+                }).then(moddoc=>{
+                    let body = {
+                        facebook_id: user.id,
+                        full_name: user.displayName,
+                        image: user.photos[0].value,
+                        link: "null"
+                    }
+                    return res.json({"access_token":jwt.sign(body,process.env.SECRET),"type": "Bearer"})
+                })
+                })
+                .catch(err=>res.status(500).json(err))
+
+
         })(req,res,next)
     });
 
+// google callback
+app.get('/google/callback',function(req, res,next) {
+    passport.authenticate('google',(err,user,info)=>{
+        if(err) return next(err)
+        if(!user) return res.redirect('/user/login')
+        db.user.findOrCreate({
+            where:{
+                google_id: user.id,
+                full_name: user.displayName,
+                image: user._json.image.url,
+                link: user._json.url
+            }
+        }).then(doc=>{
+            let body = {
+                google_id: user.id,
+                full_name: user.displayName,
+                image: user._json.image.url,
+                link: user._json.url
+            }
+
+            return res.json({"access_token":jwt.sign(body,process.env.SECRET),"type": "Bearer"})
+        }).catch(err=>err)
+
+
+    })(req,res,next)
+})
 
 
 

@@ -5,7 +5,6 @@ function verifyToken(req,res,next) {
     if (req.headers.token){
         jwt.verify(req.headers.token,process.env.SECRET,(err,doc)=>{
             if (err) {
-                debug(err)
                 res.status(401).send("invalid token provided")
             }
             req.user = doc;
