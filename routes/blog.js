@@ -3,36 +3,43 @@ const db = require('../models')
 const app = express.Router()
 const BLOG = require('../app/Controllers/BlogController')
 
+// import authorization middleware
+const token = require('../middlewares/verifyToken')
 
-app.route('/all')
-    .get(BLOG.list_all)
-app.route('/all/Category/:category')
-    .get(BLOG.list_Category)
-app.route('/all/Title/:title')
-    .get(BLOG.list_Title)
-app.route('/:id')
-    .get(BLOG.blog_detail)
-app.route('/User/:user')
-    .get(BLOG.blog_User)
-app.route('/New')
-    .post(BLOG.New_blog)
-app.route('/Update/:id')
-    .put(BLOG.Update_blog)
-app.route('/Delete/:id')
-    .delete(BLOG.Delete_blog)
+app
+    .get('/all', BLOG.list_all)
 
-app.route('/Favorite')
-    .post(BLOG.Add_favorite)
-app.route('/get/Favorite/:id')
-    .get(BLOG.get_favorite)
-app.route('/Delete/Favorite/:id')
-    .delete(BLOG.Delete_favorite)
+    .get('/all/Category/:category', BLOG.list_Category)
 
-app.route('/readLater')
-    .post(BLOG.Add_bookmark)
-app.route('/get/readLater/:id')
-    .get(BLOG.get_bookmark)
-app.route('/Delete/readLater/:id')
-    .delete(BLOG.Delete_bookmark)
+    .get('/all/Title/:title', BLOG.list_Title)
+
+    .get('/:id', BLOG.blog_detail)
+
+    .get('/User/:user', BLOG.blog_User)
+
+    // apply middleware for protection
+
+    .use((req, res, next) => token(req, res, next))
+
+    .post('/New', BLOG.New_blog)
+
+    .put('/Update/:id', BLOG.Update_blog)
+
+    .delete('/Delete/:id', BLOG.Delete_blog)
+
+    .post('/Favorite', BLOG.Add_favorite)
+
+    .get('/get/Favorite', BLOG.get_favorite)
+
+    .delete('/Delete/Favorite/:id', BLOG.Delete_favorite)
+
+    .post('/readLater', BLOG.Add_bookmark)
+
+    .get('/get/readLater', BLOG.get_bookmark)
+
+    .delete('/Delete/readLater/:id', BLOG.Delete_bookmark)
+
+
+
 
 module.exports = app;

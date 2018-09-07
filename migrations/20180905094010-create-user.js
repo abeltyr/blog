@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('comments', {
+    return queryInterface.createTable('users', {
       id: {
         allowNull: false,
         autoIncrement: false,
@@ -9,23 +9,23 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      user_id: {
-        type: Sequelize.UUID,
-        allowNull: false,
+      google_id: {
+        type: Sequelize.STRING,
+        allowNull: true
       },
-      blog_id: {
-        type: Sequelize.UUID,
-        allowNull: false,
+      facebook_id: {
+        type: Sequelize.STRING,
+        allowNull: true
       },
-      comments: {
-        type: Sequelize.TEXT,
-        allowNull: false,
-      },
-      name: {
+      full_name: {
         type: Sequelize.STRING,
         allowNull: false,
       },
       image: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      email: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -40,6 +40,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('comments');
+    return queryInterface.dropTable('users');
   }
 };

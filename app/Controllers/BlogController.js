@@ -4,6 +4,8 @@
 const db = require('../../models');
 
 
+
+
 // this is the controller to list all
 
 exports.list_all = function (req, res) {
@@ -34,7 +36,7 @@ exports.blog_detail = function (req, res) {
 
 
 /* this is the controller to list all blog
- on a specific  categoric and the amount of those blogs
+ on a specific  category and the amount of those blogs
 */
 exports.list_Category = function (req, res) {
     db.blog
@@ -91,46 +93,22 @@ exports.blog_User = function (req, res) {
  */
 
 exports.New_blog = function (req, res) {
-    var CRepeat = 0;
-    var TRepeat = 0;
-    db.blog.count({
-        where: {
-            content: req.body.content
-        }
-    }).then(data => {
-        CRepeat = data;
-        db.blog.count({
+    //refactor using findorcreate instead of checking to see the titile and content exists
+
+    db.blog.findOrCreate({
             where: {
+                user_id: req.user.id,
                 title: req.body.title,
-            }
-        }).then(data => {
-            TRepeat = data;
-            /**
-             * the if prevent from duplicating a blog that already exist
-             */
-            if ((CRepeat == 0) || (TRepeat == 0)) {
-                db.blog
-                    .create({
-                        user_id: req.body.user_id,
-                        title: req.body.title,
-                        category: req.body.category,
-                        content: req.body.content
-                    })
-                    .then(data => {
-                        res.json(data);
-                    })
-                    .catch(error => {
-                        res.json(error.errors);
-                    });
-            } else {
-                res.status(422).json(["Duplicate entry"]);
+                category: req.body.category,
+                content: req.body.content
             }
         })
-    })
-
+        .then(doc => res.send(doc)).catch(er => {
+            res.status(500).json(er.errors)
+        })
 };
 
-/**Update a blog by finding thr blog by idif it went well the created blog 
+/**Update a blog by finding thr blog by id if it went well the created blog
  * data is send back if there are error like there being empty
  * data being send it shows an error
  */
@@ -153,35 +131,39 @@ exports.Update_blog = function (req, res) {
             CTitle = data.title;
             CCategory = data.category;
             CContent = data.content;
-
             /**
-             * here we check if the there data being sent has changed or not
+             * here we check if the there data being sent has changed or not and
+             * if the blog being edited user_id match the id of the user logged in
              */
-
-            if ((CTitle == req.body.title) && (CCategory == req.body.category) && (CContent == req.body.content)) {
-                res.status(400).json(["there seems to be no change to your blog titled " + req.body.title]);
+            if (req.user.id == data.user_id) {
+                if ((CTitle == req.body.title) && (CCategory == req.body.category) && (CContent == req.body.content)) {
+                    res.status(400).json(["there seems to be no change to your blog titled " + req.body.title]);
+                } else {
+                    db.blog
+                        .update({
+                            title: req.body.title,
+                            category: req.body.category,
+                            content: req.body.content
+                        }, {
+                            where: {
+                                id: req.params.id
+                            }
+                        })
+                        .then(data => {
+                            res.json(data);
+                        })
+                        .catch(error => {
+                            res.json(error);
+                        });
+                }
             } else {
-                db.blog
-                    .update({
-                        title: req.body.title,
-                        category: req.body.category,
-                        content: req.body.content
-                    }, {
-                        where: {
-                            id: req.params.id
-                        }
-                    })
-                    .then(data => {
-                        res.json(data);
-                    })
-                    .catch(error => {
-                        res.json(error);
-                    });
+                res.status(401).json('Unauthorized attempt')
             }
+
 
         })
         .catch((error) => {
-            res.status(404).json(['this blog not found']);
+            res.status(404).json(['this blog is not found']);
         });
 
 };
@@ -195,18 +177,36 @@ exports.Delete_blog = function (req, res) {
     /** TODO add the a way to make update available only for the user who
      *  blogged the article     * 
      */
-    db.blog
-        .destroy({
+    db.blog.findOne({
             where: {
                 id: req.params.id
             }
         })
-        .then(data => {
-            res.json(data);
+        .then((data) => {
+            /**
+             * if the blog being edited user_id match the id of the user logged in
+             */
+            if (req.user.id == data.user_id) {
+                db.blog
+                    .destroy({
+                        where: {
+                            id: req.params.id
+                        }
+                    })
+                    .then(data => {
+                        res.json(data);
+                    })
+                    .catch(error => {
+                        res.json(error);
+                    });
+            } else {
+                res.status(401).json('Unauthorized attempt')
+            }
         })
-        .catch(error => {
-            res.json(error);
+        .catch((error) => {
+            res.status(404).json(['this blog is not found']);
         });
+
 };
 /**
  * Add selected blog to favorite
@@ -214,28 +214,26 @@ exports.Delete_blog = function (req, res) {
 
 exports.Add_favorite = function (req, res) {
     /** TODO add the a way to make update available only for the user who
+     *
      *  blogged the article     * 
      */
-    db.favorites
-        .findOrCreate({
+
+    db.favorites.findOrCreate({
             where: {
-                user_id: req.body.user_id,
-                blog_id: req.body.blog_id,
-                title: req.body.title
+                user_id: req.user.id,
+                title: req.body.title,
+                blog_id: req.body.blog_id
             }
         })
-        .then(data => {
-            res.json(data);
+        .then(doc => res.send(doc)).catch(er => {
+            res.status(500).json(er.errors)
         })
-        .catch(error => {
-            res.json(error.errors);
-        });
 };
 
 exports.get_favorite = function (req, res) {
     db.favorites.findAndCountAll({
             where: {
-                user_id: req.params.id,
+                user_id: req.user.id,
             }
         })
         .then((data) => {
@@ -250,25 +248,40 @@ exports.Delete_favorite = function (req, res) {
     /** TODO add the a way to make update available only for the user who
      *  blogged the article     * 
      */
-    db.favorites
-        .destroy({
+    db.favorites.findOne({
             where: {
                 id: req.params.id
             }
         })
-        .then(data => {
-            res.json(data);
+        .then(doc => {
+            if (doc.user_id == req.user.id) {
+                db.favorites
+                    .destroy({
+                        where: {
+                            id: req.params.id
+                        }
+                    })
+                    .then(data => {
+                        res.json(data);
+                    })
+                    .catch(error => {
+                        res.json(error);
+                    });
+            } else {
+                res.status(401).json('Unauthorized attempt')
+            }
         })
-        .catch(error => {
-            res.json(error);
+        .catch((error) => {
+            res.status(404).json(['this blog is not found']);
         });
+
 };
 
 exports.Add_bookmark = function (req, res) {
     db.readlater
         .findOrCreate({
             where: {
-                user_id: req.body.user_id,
+                user_id: req.user.id,
                 blog_id: req.body.blog_id,
                 title: req.body.title
             }
@@ -285,7 +298,7 @@ exports.Add_bookmark = function (req, res) {
 exports.get_bookmark = function (req, res) {
     db.readlater.findAndCountAll({
             where: {
-                user_id: req.params.id,
+                user_id: req.user.id,
             }
         })
         .then((data) => {
@@ -300,16 +313,31 @@ exports.Delete_bookmark = function (req, res) {
     /** TODO add the a way to make update available only for the user who
      *  blogged the article     * 
      */
-    db.readlater
-        .destroy({
+
+    db.readlater.findOne({
             where: {
                 id: req.params.id
             }
         })
-        .then(data => {
-            res.json(data);
+        .then(doc => {
+            if (doc.user_id == req.user.id) {
+                db.readlater
+                    .destroy({
+                        where: {
+                            id: req.params.id
+                        }
+                    })
+                    .then(data => {
+                        res.json(data);
+                    })
+                    .catch(error => {
+                        res.json(error);
+                    });
+            } else {
+                res.status(401).json('Unauthorized attempt')
+            }
         })
-        .catch(error => {
-            res.json(error);
+        .catch((error) => {
+            res.status(404).json(['this blog is not found']);
         });
 };

@@ -29,6 +29,13 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: true
       }
     },
+    image: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
+    },
     comments: {
       type: DataTypes.TEXT,
       allowNull: false,

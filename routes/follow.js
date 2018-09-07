@@ -2,24 +2,27 @@ const express = require('express')
 const db = require('../models')
 const app = express.Router()
 const FOLLOW = require('../app/Controllers/FollowController')
+const token = require('../middlewares/verifyToken')
 
+app
+    .use((req, res, next) => token(req, res, next))
 
-app.route('/Following/User/:id')
-    .get(FOLLOW.Following_user)
+    .post('/User/Followers', FOLLOW.No_Followers)
 
-app.route('/Following/Category/:id')
-    .get(FOLLOW.Following_category)
+    .get('/Following/User', FOLLOW.Following_user)
 
-app.route('/Follow/Category')
-    .post(FOLLOW.Follow_category)
+    .get('/Following/Category', FOLLOW.Following_category)
 
-app.route('/Follow/User')
-    .post(FOLLOW.Follow_user)
+    .post('/Follow/Category', FOLLOW.Follow_category)
 
-app.route('/Unfollow/Category')
-    .delete(FOLLOW.unfollow_category)
+    .post('/Follow/User', FOLLOW.Follow_user)
 
-app.route('/Unfollow/User')
-    .delete(FOLLOW.Unfollow_user)
+    .delete('/Unfollow/Category', FOLLOW.unfollow_category)
+
+    .delete('/Unfollow/User', FOLLOW.Unfollow_user)
+
+    .post('/Check/Category', FOLLOW.check_category)
+
+    .post('/Check/User', FOLLOW.check_user)
 
 module.exports = app;
