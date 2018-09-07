@@ -4,6 +4,8 @@
 const db = require('../../models');
 
 
+
+
 // this is the controller to list all
 
 exports.list_all = function (req, res) {
@@ -91,46 +93,15 @@ exports.blog_User = function (req, res) {
  */
 
 exports.New_blog = function (req, res) {
-    var CRepeat = 0;
-    var TRepeat = 0;
-    db.blog.count({
-        where: {
-            content: req.body.content
-        }
-    }).then(data => {
-        CRepeat = data;
-        db.blog.count({
-            where: {
-                title: req.body.title,
-            }
-        }).then(data => {
-            TRepeat = data;
-            /**
-             * the if prevent from duplicating a blog that already exist
-             */
-            if ((CRepeat == 0) || (TRepeat == 0)) {
-                db.blog
-                    .create({
-                        user_id: req.body.user_id,
-                        title: req.body.title,
-                        category: req.body.category,
-                        content: req.body.content
-                    })
-                    .then(data => {
-                        res.json(data);
-                    })
-                    .catch(error => {
-                        res.json(error.errors);
-                    });
-            } else {
-                res.status(422).json(["Duplicate entry"]);
-            }
-        })
-    })
-
+    //refactor using findorcreate instead of checking to see the titile and content exists
+    // db.blog.find
+   db.blog.findOrCreate({where:{user_id : req.body.user_id, title: req.body.title, category: req.body.category, content: req.body.content }})
+       .then(doc=>res.send(doc)).catch(er=>{
+            res.status(500).json(er.errors)
+       })
 };
 
-/**Update a blog by finding thr blog by idif it went well the created blog 
+/**Update a blog by finding thr blog by id if it went well the created blog
  * data is send back if there are error like there being empty
  * data being send it shows an error
  */
@@ -181,7 +152,7 @@ exports.Update_blog = function (req, res) {
 
         })
         .catch((error) => {
-            res.status(404).json(['this blog not found']);
+            res.status(404).json(['this blog is not found']);
         });
 
 };
@@ -214,44 +185,13 @@ exports.Delete_blog = function (req, res) {
 
 exports.Add_favorite = function (req, res) {
     /** TODO add the a way to make update available only for the user who
+     *
      *  blogged the article     * 
      */
-    db.favorites
 
-    var URepeat = 0;
-    var BRepeat = 0;
-    db.favorites.count({
-        where: {
-            user_id: req.body.user_id,
-        }
-    }).then(data => {
-        URepeat = data;
-        db.favorites.count({
-            where: {
-                blog_id: req.body.blog_id,
-            }
-        }).then(data => {
-            BRepeat = data;
-            /**
-             * the if prevent from duplicating a blog that already exist
-             */
-            if ((URepeat == 0) || (BRepeat == 0)) {
-                db.favorites
-                    .create({
-                        user_id: req.body.user_id,
-                        blog_id: req.body.blog_id,
-                        title: req.body.title
-                    })
-                    .then(data => {
-                        res.json(data);
-                    })
-                    .catch(error => {
-                        res.json(error.errors);
-                    });
-            } else {
-                res.status(422).json(["Duplicate entry"]);
-            }
-        })
+    db.favorites.findOrCreate({where:{user_id : req.body.user_id, title: req.body.title, blog_id: req.body.blog_id}})
+        .then(doc=>res.send(doc)).catch(er=>{
+        res.status(500).json(er.errors)
     })
 };
 

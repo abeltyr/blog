@@ -16,31 +16,11 @@ exports.list_all = function (req, res) {
 };
 
 exports.New_comment = function (req, res) {
-    db.comment.findAndCountAll({
-        where: {
-            user_id: req.body.user_id,
-            blog_id: req.body.blog_id,
-        }
-    }).then(results => {
-        if (results.count == 0) {
-            db.comment
-                .create({
-                    user_id: req.body.user_id,
-                    blog_id: req.body.blog_id,
-                    comments: req.body.comments,
-                    name: req.body.name,
-                })
-                .then(data => {
-                    res.json(data);
-                })
-                .catch(error => {
-                    res.json(error.errors);
-                });
-        } else {
-            res.status(422).json(["only one comment per person"]);
-        }
-
+    db.comment.findOrCreate({where:{user_id : req.body.user_id, comments: req.body.comments, blog_id: req.body.blog_id, name: req.body.name}})
+        .then(doc=>res.send(doc)).catch(er=>{
+        res.status(500).json(er.errors)
     })
+
 };
 
 exports.Delete_comment = function (req, res) {

@@ -22,11 +22,17 @@ app
 
     .get('/User/:user',BLOG.blog_User)
 
+    // apply middleware for protection
+    .use((req,res,next)=>token(req,res,next))
+
     .post('/New',BLOG.New_blog)
 
     .put('/Update/:id',BLOG.Update_blog)
 
     .delete('/Delete/:id',BLOG.Delete_blog)
 
+    .post('/Favorite', BLOG.Add_favorite)
+
+    .get('/get/Favorite/:id', BLOG.get_favorite)
 
 module.exports = app;
