@@ -7,6 +7,7 @@ const feedback = require('./routes/feedback')
 const follow = require('./routes/follow')
 const user = require('./routes/user')
 
+
 // middleware
 const security = require('./middlewares/security')
 
@@ -36,3 +37,5 @@ app.listen(process.env.APP_PORT ? process.env.APP_PORT : 3000, (err) => {
     if (err) debug("can't start the app")
     debug(`starting ${process.env.APP_NAME} on port ${process.env.APP_PORT}`)
 })
+
+module.export = server

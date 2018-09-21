@@ -20,5 +20,11 @@ module.exports = {
     "database": process.env.DB_DATABASE,
     "host": process.env.DB_HOST,
     "dialect": process.env.DB_CONNECTION
+  },
+  "env": {
+    "FACEBOOK_APP_ID": "2265600380390466",
+    "FACEBOOK_APP_SECRET": "9722f2175eefa00e960252205cc7c5a7",
+    "GOOGLE_APP_ID": "585886034796-4p4jjpivhd07iklttd6tgqmmk79v2opu.apps.googleusercontent.com",
+    "GOOGLE_APP_SECRET": "LdFDTQFP-yBTYzoSFpyKtUZ2"
   }
 }

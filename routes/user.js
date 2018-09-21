@@ -1,6 +1,7 @@
 //require express and init the mini app
 const express = require('express')
 const app = express.Router()
+const Config = require('../config/config')
 
 
 // require passport and the facebook strategy
@@ -19,18 +20,18 @@ const db = require('../models');
 
 // facebook strategy
 passport.use(new passport_fb({
-        clientID: process.env.FACEBOOK_APP_ID,
-        clientSecret: process.env.FACEBOOK_APP_SECRET,
+        clientID: Config.env.FACEBOOK_APP_ID,
+        clientSecret: Config.env.FACEBOOK_APP_SECRET,
         callbackURL: "http://localhost:3000/user/facebook/callback",
-        profileFields: ['email', 'first_name', 'last_name', 'picture.type(small)', 'displayName', 'link'],
+        profileFields: ['id', 'displayName', 'emails', 'picture.type(small)', 'link']
     },
     (accessToken, refreshToken, profile, cb) => {
         cb(null, profile)
     }))
 // google strategy
 passport.use(new passport_go({
-        clientID: process.env.GOOGLE_APP_ID,
-        clientSecret: process.env.GOOGLE_APP_SECRET,
+        clientID: Config.env.GOOGLE_APP_ID,
+        clientSecret: Config.env.GOOGLE_APP_SECRET,
         callbackURL: "http://localhost:3000/user/google/callback",
     },
     function (accessToken, refreshToken, profile, done) {
@@ -45,9 +46,7 @@ app.get('/google/login', passport.authenticate('google', {
 
 // login link /user/facebook/login
 app.get('/facebook/login', passport.authenticate('facebook', {
-    session: false
-}, {
-    scope: ["email"]
+    scope: ['email', 'public_profile'],
 }))
 
 // facebook callback
@@ -58,34 +57,35 @@ app.get('/facebook/callback',
         }, (err, user, info) => {
             if (err) return next(err)
             if (!user) return res.redirect('/user/login')
-            db.user.findOrCreate({
-                    where: {
-                        facebook_id: user.id,
-                        full_name: user.displayName,
-                        image: "null",
-                        email: "null"
-                    }
-                }).then(doc => {
-                    db.user.findOne({
-                        where: {
-                            id: doc.id
-                        }
-                    }, {
-                        image: user.photos[0].value
-                    }).then(moddoc => {
-                        let body = {
-                            facebook_id: user.id,
-                            full_name: user.displayName,
-                            image: user.photos[0].value,
-                            email: "null"
-                        }
-                        return res.json({
-                            "access_token": jwt.sign(body, process.env.SECRET),
-                            "type": "Bearer"
-                        })
-                    })
-                })
-                .catch(err => res.status(500).json(err))
+            console.log(user)
+            // db.user.findOrCreate({
+            //         where: {
+            //             facebook_id: user.id,
+            //             full_name: user.displayName,
+            //             image: "null",
+            //             email: "null"
+            //         }
+            //     }).then(doc => {
+            //         db.user.findOne({
+            //             where: {
+            //                 id: doc.id
+            //             }
+            //         }, {
+            //             image: user.photos[0].value
+            //         }).then(moddoc => {
+            //             let body = {
+            //                 facebook_id: user.id,
+            //                 full_name: user.displayName,
+            //                 image: user.photos[0].value,
+            //                 email: "null"
+            //             }
+            //             return res.json({
+            //                 "access_token": jwt.sign(body, process.env.SECRET),
+            //                 "type": "Bearer"
+            //             })
+            //         })
+            //     })
+            //     .catch(err => res.status(500).json(err))
 
 
         })(req, res, next)
