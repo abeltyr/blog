@@ -15,9 +15,9 @@ module.exports = {
     "dialect": "mysql"
   },
   "production": {
-    "username": process.env.DB_USERNAME,
-    "password": process.env.DB_PASSWORD,
-    "database": process.env.DB_DATABASE,
+    "username": "mikiast",
+    "password": "ethiopia",
+    "database": "blogapp",
     "host": "db4free.net",
     "dialect": "mysql"
   },
