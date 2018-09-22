@@ -22,7 +22,7 @@ const db = require('../models');
 passport.use(new passport_fb({
         clientID: Config.env.FACEBOOK_APP_ID,
         clientSecret: Config.env.FACEBOOK_APP_SECRET,
-        callbackURL: "http://localhost:3000/user/facebook/callback",
+        callbackURL: "https://ethblogi.herokuapp.com/user/facebook/callback",
         profileFields: ['id', 'displayName', 'emails', 'picture.type(small)', 'link']
     },
     (accessToken, refreshToken, profile, cb) => {
@@ -32,7 +32,7 @@ passport.use(new passport_fb({
 passport.use(new passport_go({
         clientID: Config.env.GOOGLE_APP_ID,
         clientSecret: Config.env.GOOGLE_APP_SECRET,
-        callbackURL: "http://localhost:3000/user/google/callback",
+        callbackURL: "https://ethblogi.herokuapp.com/user/google/callback",
     },
     function (accessToken, refreshToken, profile, done) {
         return done(null, profile)
