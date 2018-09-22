@@ -1,1 +1,0 @@
-web: nodemon --require dotenv/config index.js
