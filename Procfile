@@ -1,1 +1,1 @@
-web: yarn start
+web: nodemon --require dotenv/config index.js
